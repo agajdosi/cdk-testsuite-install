@@ -12,21 +12,45 @@
     - name: Enable Vagrant SCLO
       shell: scl enable sclo-vagrant1 bash #this does not persist to later calls of "vagrant global-status"
 
-    - name: Download CDK zip
+    - name: Delete old CDK.zip file, if any
+      file: path=/home/{{ account }}/cdk.zip state=absent
+
+    - name: Download latest nightly CDK.zip
       get_url: 
         url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/cdk.zip
         dest: /home/{{ account }}/cdk.zip
 
-    - name: Delete old cdk version, if any
+    - name: Delete old CDK folder, if any
       file: path=/home/{{ account }}/cdk state=absent
 
     - name: Unzip CDK zip
-      command: unzip /home/{{ account }}/cdk.zip
+      command: unzip /home/{{ account }}/cdk.zip # unarchive module having some problems here so doing it through command "unzip"
 
+    - name: Get url of latest nightly libvirt box
+      shell: wget -o /dev/null -O - http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/ | grep 'libvirt\.box"' | sed 's/.*a href="\([^"]*\)".*/\1/'
+      register: result
 
-    - name: Download libvirt box
+    - name: Download latest nightly libvirt box
       get_url:
-        url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/rhel-7-cdk-vagrant-scratch-7.2.04112016-1.x86_64.vagrant-libvirt.box
-        dest: /home/{{ account }}/cdk/rhel-7-cdk-vagrant-scratch-7.x86_64.vagrant-libvirt.box
+        url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/{{ result.stdout }}
+        dest: /home/{{ account }}/cdk/rhel-7-cdk.x86_64.vagrant-libvirt.box
+
+    - name: Install vagrant registration plugin
+      shell: vagrant plugin install /home/{{ account}}/cdk/plugins/vagrant-registration-*.gem
+
+    - name: Install vagrant service manager plugin
+      shell: vagrant plugin install /home/{{ account}}/cdk/plugins/vagrant-service-manager-*.gem
+
+    - name: Install vagrant sshfs plugin
+      shell: vagrant plugin install /home/{{ account}}/cdk/plugins/vagrant-sshfs-*.gem
+
+
+
+
+
+
+
+
+
 
 
