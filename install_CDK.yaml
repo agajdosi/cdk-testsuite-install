@@ -1,0 +1,32 @@
+---
+- hosts: [rhel]
+  remote_user: cdk
+
+  vars:
+    account: cdk
+    
+
+  tasks:
+
+# 5.3. Setting Up Container Development Kit Software Components
+    - name: Enable Vagrant SCLO
+      shell: scl enable sclo-vagrant1 bash #this does not persist to later calls of "vagrant global-status"
+
+    - name: Download CDK zip
+      get_url: 
+        url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/cdk.zip
+        dest: /home/{{ account }}/cdk.zip
+
+    - name: Delete old cdk version, if any
+      file: path=/home/{{ account }}/cdk state=absent
+
+    - name: Unzip CDK zip
+      command: unzip /home/{{ account }}/cdk.zip
+
+
+    - name: Download libvirt box
+      get_url:
+        url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/rhel-7-cdk-vagrant-scratch-7.2.04112016-1.x86_64.vagrant-libvirt.box
+        dest: /home/{{ account }}/cdk/rhel-7-cdk-vagrant-scratch-7.x86_64.vagrant-libvirt.box
+
+

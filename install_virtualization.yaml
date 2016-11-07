@@ -1,0 +1,77 @@
+---
+- hosts: [rhel]
+  remote_user: root
+  vars:
+# Need to move this into external config file
+    username: ""
+    password: ""
+    account: "cdk"
+    variant: "server"
+    vagrant_version: "1.7.1"
+
+  tasks:
+
+# 5.2.1.1 Registering a Red Hat Enterprise Linux System and Enabling Repositories
+    - name: Register system 
+      redhat_subscription: state=present username={{ username }} password={{ password }} autosubscribe=true    
+
+    - name: Enable software collections
+      command: subscription-manager repos --enable rhel-{{ variant }}-rhscl-7-rpms
+
+    - name: Enable optional RPMs
+      command: subscription-manager repos --enable rhel-7-{{ variant }}-optional-rpms
+
+    - name: Add centos7 SCLO repo to yum
+      command: yum-config-manager --add-repo=http://mirror.centos.org/centos-7/7/sclo/x86_64/sclo/
+
+    - name: gpgcheck >> repo #using less secure shell, because command does not support >>
+      shell: echo "gpgcheck=0" >> /etc/yum.repos.d/mirror.centos.org_centos-7_7_sclo_x86_64_sclo_.repo
+
+    - name: Update system
+      yum: name=* state=latest
+
+    - name: Reboot system
+      shell: sleep 2 && shutdown -r now "Ansible reboot"
+      async: 1
+      poll: 0
+      ignore_errors: true
+
+    - name: Wait for server to come back
+      local_action: wait_for
+      args:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        state: started
+        delay: 30
+        timeout: 300
+
+# 5.2.1.2. Installing and Initializing Virtualization Software
+    - name: Install the the Virtualization Host package group
+      yum: name="@Virtualization-Hypervisor" state=present
+# Both "@Virtualization Host" and "@Virtualization Host" does not work
+# Use yum module with Virtualization-Hypervisor
+# or install Virtualization Host via command module?
+                    
+    - name: Launch the libvirtd daemon
+      command: systemctl start libvirtd
+
+    - name: Configure libvirt to start at boot
+      command: systemctl enable libvirtd
+
+    - name: Install Vagrant and other required packages, including the vagrant-libvirt plugin
+      yum: name="sclo-vagrant1,sclo-vagrant1-vagrant-libvirt,sclo-vagrant1-vagrant-libvirt-doc" state=present
+
+    - name: Allow your regular user ID to start and stop Vagrant boxes
+      shell: cp /opt/rh/sclo-vagrant1/root/usr/share/vagrant/gems/doc/vagrant-libvirt-*/polkit/10-vagrant-libvirt.rules /etc/polkit-1/rules.d/10-vagrant-libvirt.rules
+
+    - name: Restart the libvirt service
+      command: systemctl restart libvirtd
+
+    - name: Restart PolicyKit service
+      command: systemctl restart polkit
+
+    - name: As root add testing user name to the vagrant group
+      command: usermod -a -G vagrant {{ account }}
+
+
+
