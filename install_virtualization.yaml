@@ -1,6 +1,7 @@
 ---
 - hosts: [rhel]
   remote_user: root
+
   vars:
 # Need to move this into external config file
     username: ""
@@ -47,10 +48,7 @@
 
 # 5.2.1.2. Installing and Initializing Virtualization Software
     - name: Install the the Virtualization Host package group
-      yum: name="@Virtualization-Hypervisor" state=present
-# Both "@Virtualization Host" and "@Virtualization Host" does not work
-# Use yum module with Virtualization-Hypervisor
-# or install Virtualization Host via command module?
+      command: yum groupinstall -y "Virtualization Host"
                     
     - name: Launch the libvirtd daemon
       command: systemctl start libvirtd
