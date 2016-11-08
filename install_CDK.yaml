@@ -33,7 +33,7 @@
     - name: Download latest nightly libvirt box
       get_url:
         url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/{{ result.stdout }}
-        dest: /home/{{ account }}/cdk/rhel-7-cdk.x86_64.vagrant-libvirt.box
+        dest: /home/{{ account }}/cdk/rhel7-cdk-box.box
 
     - name: Install vagrant registration plugin
       shell: vagrant plugin install /home/{{ account}}/cdk/plugins/vagrant-registration-*.gem
@@ -44,13 +44,7 @@
     - name: Install vagrant sshfs plugin
       shell: vagrant plugin install /home/{{ account}}/cdk/plugins/vagrant-sshfs-*.gem
 
-
-
-
-
-
-
-
-
+    - name: Add vagrant box
+      shell: vagrant box add --name cdkv2 /home/{{ account }}/cdk/rhel7-cdk-box.box
 
 
