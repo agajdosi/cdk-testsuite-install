@@ -1,0 +1,54 @@
+---
+- hosts: [rhel]
+  remote_user: root
+
+  vars:
+    account: cdk
+    username: ""
+    password: ""
+    
+  tasks:
+    - name: Install EPEL
+      yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
+
+    - name: Download Avocado repository
+      get_url:
+        url: https://repos-avocadoproject.rhcloud.com/static/avocado-el.repo
+        dest: /etc/yum.repos.d/avocado.repo
+        
+    - name: Install Avocado
+      yum: name=avocado state=present
+
+    - name: Delete projectatomic/adb-tests repository, if any
+      file: dest=/home/{{ account }}/adb-tests state=absent
+
+    - name: Get projectatomic/adb-tests repository
+      git: dest=/home/{{ account }}/adb-tests repo=https://github.com/projectatomic/adb-tests.git
+
+
+    - name: set vagrant_VAGRANTFILE_DIR in cdk-testsuite/config/config.yaml
+      shell: echo 'vagrant_VAGRANTFILE_DIR :' '/home/{{ account }}/cdk/components/rhel/rhel-ose/' >> /home/{{ account }}/adb-tests/cdk-testsuite/config/config.yaml
+
+    - name: set vagrant_PROVIDER in cdk-testsuite/config/config.yaml
+      shell: echo 'vagrant_PROVIDER :' 'libvirt' >> /home/{{ account }}/adb-tests/cdk-testsuite/config/config.yaml
+
+    - name: set vagrant_RHN_USERNAME in cdk-testsuite/config/config.yaml
+      shell: echo 'vagrant_RHN_USERNAME :' '{{ username }}' >> /home/{{ account }}/adb-tests/cdk-testsuite/config/config.yaml
+
+    - name: set vagrant_RHN_PASSWORD in cdk-testsuite/config/config.yaml
+      shell: echo 'vagrant_RHN_PASSWORD :' '{{ password }}' >> /home/{{ account }}/adb-tests/cdk-testsuite/config/config.yaml
+
+    - name: set openshift_lib_MODULE in cdk-testsuite/config/config.yaml
+      shell: echo 'openshift_lib_MODULE :' '/home/{{ account }}/adb-tests/cdk-testsuite/libraries/openshift/openshift.py' >> /home/{{ account }}/adb-tests/cdk-testsuite/config/config.yaml
+
+    - name: set openshift_util_MODULE in cdk-testsuite/config/config.yaml
+      shell: echo 'openshift_util_MODULE :' '/home/{{ account }}/adb-tests/cdk-testsuite/utils/openshiftUtils.py' >> /home/{{ account }}/adb-tests/cdk-testsuite/config/config.yaml
+
+    - name: Install pip
+      yum: name=python-pip state=present
+
+    - name: Install python module - pexpect (through pip)
+      pip: name=pexpect state=present
+
+    - name: Install python module - python-vagrant (through pip)
+      pip: name=python-vagrant state=present
