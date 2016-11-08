@@ -73,5 +73,7 @@
     - name: As root add testing user name to the vagrant group
       command: usermod -a -G vagrant {{ account }}
 
+    - name: Permanently enable sclo-vagrant1 for all users #this is workaround of "scl enable sclo-vagrant1 bash" which does not affect later calls of shell from Ansible
+      copy: src=./misc/enablesclo-vagrant1.sh dest=/etc/profile.d/enablesclo-vagrant1.sh
 
 
