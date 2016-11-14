@@ -17,7 +17,8 @@
 
     - name: Download latest nightly CDK.zip
       get_url: 
-        url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/cdk.zip
+#        url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/cdk.zip
+        url: http://cdk-builds.usersys.redhat.com/builds/weekly/09-Nov-2016.rc1//cdk.zip
         dest: /home/{{ account }}/cdk.zip
 
     - name: Delete old CDK folder, if any
@@ -27,12 +28,14 @@
       command: unzip /home/{{ account }}/cdk.zip # unarchive module having some problems here so doing it through command "unzip"
 
     - name: Get url of latest nightly libvirt box
-      shell: wget -o /dev/null -O - http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/ | grep 'libvirt\.box"' | sed 's/.*a href="\([^"]*\)".*/\1/'
+#      shell: wget -o /dev/null -O - http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/ | grep 'libvirt\.box"' | sed 's/.*a href="\([^"]*\)".*/\1/'
+      shell: wget -o /dev/null -O - http://cdk-builds.usersys.redhat.com/builds/weekly/09-Nov-2016.rc1/ | grep 'libvirt\.box"' | sed 's/.*a href="\([^"]*\)".*/\1/'
       register: result
 
     - name: Download latest nightly libvirt box
       get_url:
-        url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/{{ result.stdout }}
+#        url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/{{ result.stdout }}
+        url: http://cdk-builds.usersys.redhat.com/builds/weekly/09-Nov-2016.rc1/{{ result.stdout }}
         dest: /home/{{ account }}/cdk/rhel7-cdk-box.box
 
     - name: Install vagrant registration plugin

@@ -11,6 +11,9 @@
     - name: Install EPEL
       yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
 
+    - name: Install GIT
+      yum: name=git state=latest
+
     - name: Download Avocado repository
       get_url:
         url: https://repos-avocadoproject.rhcloud.com/static/avocado-el.repo
@@ -24,7 +27,6 @@
 
     - name: Get projectatomic/adb-tests repository
       git: dest=/home/{{ account }}/adb-tests repo=https://github.com/projectatomic/adb-tests.git
-
 
     - name: set vagrant_VAGRANTFILE_DIR in cdk-testsuite/config/config.yaml
       shell: echo 'vagrant_VAGRANTFILE_DIR :' '/home/{{ account }}/cdk/components/rhel/rhel-ose/' >> /home/{{ account }}/adb-tests/cdk-testsuite/config/config.yaml

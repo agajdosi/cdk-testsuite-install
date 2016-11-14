@@ -12,9 +12,6 @@
     - name: Create new testing account
       user: name={{ account }} state=present group=wheel generate_ssh_key=yes comment="CDK qe testing account"
 
-    - name: Get GIT cdk-testsuite-install repo
-      git: dest=/home/{{ account }}/cdk-testsuite-install repo=https://github.com/agajdosi/cdk-testsuite-install.git
-
     - name: Set authorized keys for testing account
       authorized_key: user={{ account }} key="{{ lookup('file', 'id_rsa.pub') }}"
 
