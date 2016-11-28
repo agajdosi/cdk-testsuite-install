@@ -4,8 +4,6 @@
 
   vars:
     account: cdk
-    username: ""
-    password: ""
     
   tasks:
     - name: Install EPEL
@@ -54,3 +52,5 @@
 
     - name: Install python module - python-vagrant (through pip)
       pip: name=python-vagrant state=present
+
+

@@ -13,5 +13,5 @@
       user: name={{ account }} state=present group=wheel generate_ssh_key=yes comment="CDK qe testing account"
 
     - name: Set authorized keys for testing account
-      authorized_key: user={{ account }} key="{{ lookup('file', 'id_rsa.pub') }}"
+      authorized_key: user={{ account }} key="{{ lookup('file', 'auth_key') }}"
 
